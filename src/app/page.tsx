@@ -2,111 +2,131 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { login, getUser } from '@/lib/auth';
-
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@radigital.com.br');
-  const [password, setPassword] = useState('123456');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (getUser()) router.replace('/dashboard');
-  }, [router]);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setTimeout(() => {
-      const user = login(email, password);
-      if (user) {
-        router.push('/dashboard');
-      } else {
-        setError('E-mail ou senha inválidos.');
-        setLoading(false);
-      }
-    }, 600);
+  const [error, setError] = useState('');
+  useEffect(() => { if (getUser()) router.replace('/dashboard'); }, [router]);
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault(); setLoading(true); setError('');
+    try {
+      const user = await login(email.trim(), password);
+      if (user) { router.push('/dashboard'); } else { setError('E-mail ou senha incorretos.'); }
+    } catch { setError('Erro de conexão. Tente novamente.'); } finally { setLoading(false); }
   }
-
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
-      {/* Left — branding */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-14 text-white">
-        <div>
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center font-bold text-lg">R</div>
-            <span className="text-xl font-bold">RA Hub</span>
-          </div>
-          <h1 className="text-4xl font-bold leading-tight mb-4">
-            Sistema completo de gestão<br/>
-            <span className="text-blue-400">para sua agência.</span>
-          </h1>
-          <p className="text-slate-400 text-lg">
-            Tráfego pago, CRM, financeiro, GMB, social media e criação de sites — tudo em um lugar.
-          </p>
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 to-blue-950">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient
+cat > src/app/page.tsx << 'EOF'
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { login, getUser } from '@/lib/auth';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => { if (getUser()) router.replace('/dashboard'); }, [router]);
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault(); setLoading(true); setError('');
+    try {
+      const user = await login(email.trim(), password);
+      if (user) { router.push('/dashboard'); } else { setError('E-mail ou senha incorretos.'); }
+    } catch { setError('Erro de conexão. Tente novamente.'); } finally { setLoading(false); }
+  }
+  return (
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 to-blue-950">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/10"/>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-12"><div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center"><span className="text-white font-bold text-lg">R</span></div><span className="text-white font-bold text-xl">RA Hub</span></div>
+          <h1 className="text-4xl font-bold text-white leading-tight mb-4">Sistema completo de gestão<br/><span className="text-blue-400">para sua agência.</span></h1>
+          <p className="text-slate-400 text-lg">Tráfego pago, CRM, financeiro, GMB, social media e criação de sites.</p>
         </div>
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: 'Clientes ativos', value: '5' },
-            { label: 'MRR atual', value: 'R$10.350' },
-            { label: 'ROAS médio', value: '4.2x' },
-          ].map(s => (
-            <div key={s.label} className="bg-white/10 rounded-xl p-4">
-              <div className="text-2xl font-bold text-blue-300">{s.value}</div>
-              <div className="text-sm text-slate-400 mt-1">{s.label}</div>
-            </div>
+        <div className="relative z-10 grid grid-cols-3 gap-4">
+          {[{label:'Clientes ativos',value:'5'},{label:'MRR atual',value:'R$10.350'},{label:'ROAS médio',value:'4.2x'}].map(s=>(
+            <div key={s.label} className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10"><p className="text-white font-bold text-xl">{s.value}</p><p className="text-slate-400 text-xs mt-1">{s.label}</p></div>
           ))}
         </div>
       </div>
-
-      {/* Right — login form */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-sm">
           <div className="bg-white rounded-2xl shadow-2xl p-8">
-            <div className="flex items-center gap-3 mb-8 lg:hidden">
-              <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-white">R</div>
-              <span className="text-lg font-bold text-slate-900">RA Hub</span>
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-1">Bem-vinda, Karla</h2>
-            <p className="text-slate-500 text-sm mb-7">Faça login para acessar o painel.</p>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="label">E-mail</label>
-                <input type="email" className="input" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+            <div className="mb-6"><h2 className="text-xl font-bold text-slate-800">Bem-vindo ao RA Hub</h2><p className="text-slate-500 text-sm mt-1">Faça login para acessar o painel.</p></div>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div><label className="label">E-mail</label><input className="input" type="email" placeholder="seu@email.com.br" value={email} onChange={e=>setEmail(e.target.value)} required autoFocus/></div>
+              <div><label className="label">Senha</label>
+                <div className="relative"><input className="input pr-10" type={showPassword?'text':'password'} placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required/>
+                  <button type="button" onClick={()=>setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">{showPassword?<EyeOff size={16}/>:<Eye size={16}/>}</button>
+                </div>
               </div>
-              <div>
-                <label className="label">Senha</label>
-                <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} required />
-              </div>
-              {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-              <button type="submit" disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-3 rounded-xl transition-colors">
-                {loading ? 'Entrando...' : 'Entrar'}
-              </button>
+              {error&&<div className="bg-red-50 r-red-200 text-red-600 text-sm rounded-lg px-4 py-3">{error}</div>}
+              <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-2.5">{loading?<><Loader2 size={16} className="animate-spin"/> Entrando...</>:'Entrar'}</button>
             </form>
+            <p className="text-center text-xs text-slate-40
 
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <p className="text-xs text-slate-400 font-medium mb-2">Usuários de demonstração:</p>
-              <div className="space-y-1.5">
-                {[
-                  { email: 'admin@radigital.com.br',    role: 'Admin',   color: 'bg-blue-100 text-blue-700'  },
-                  { email: 'carlos@radigital.com.br',   role: 'Tráfego', color: 'bg-green-100 text-green-700'},
-                  { email: 'fernanda@radigital.com.br', role: 'Social',  color: 'bg-purple-100 text-purple-700'},
-                ].map(u => (
-                  <button key={u.email} type="button"
-                    onClick={() => { setEmail(u.email); setPassword('123456'); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left">
-                    <span className={`badge ${u.color} text-xs`}>{u.role}</span>
-                    <span className="text-xs text-slate-500">{u.email}</span>
-                    <span className="text-xs text-slate-400 ml-auto">senha: 123456</span>
-                  </button>
-                ))}
+
+cat > src/app/page.tsx << 'EOF'
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { login, getUser } from '@/lib/auth';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => { if (getUser()) router.replace('/dashboard'); }, [router]);
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault(); setLoading(true); setError('');
+    try {
+      const user = await login(email.trim(), password);
+      if (user) { router.push('/dashboard'); } else { setError('E-mail ou senha incorretos.'); }
+    } catch { setError('Erro de conexão. Tente novamente.'); } finally { setLoading(false); }
+  }
+  return (
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 to-blue-950">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/10"/>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-12"><div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center"><span className="text-white font-bold text-lg">R</span></div><span className="text-white font-bold text-xl">RA Hub</span></div>
+          <h1 className="text-4xl font-bold text-white leading-tight mb-4">Sistema completo de gestão<br/><span className="text-blue-400">para sua agência.</span></h1>
+          <p className="text-slate-400 text-lg">Tráfego pago, CRM, financeiro, GMB, social media e criação de sites.</p>
+        </div>
+        <div className="relative z-10 grid grid-cols-3 gap-4">
+          {[{label:'Clientes ativos',value:'5'},{label:'MRR atual',value:'R$10.350'},{label:'ROAS médio',value:'4.2x'}].map(s=>(
+            <div key={s.label} className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10"><p className="text-white font-bold text-xl">{s.value}</p><p className="text-slate-400 text-xs mt-1">{s.label}</p></div>
+          ))}
+        </div>
+      </div>
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="mb-6"><h2 className="text-xl font-bold text-slate-800">Bem-vindo ao RA Hub</h2><p className="text-slate-500 text-sm mt-1">Faça login para acessar o painel.</p></div>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div><label className="label">E-mail</label><input className="input" type="email" placeholder="seu@email.com.br" value={email} onChange={e=>setEmail(e.target.value)} required autoFocus/></div>
+              <div><label className="label">Senha</label>
+                <div className="relative"><input className="input pr-10" type={showPassword?'text':'password'} placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required/>
+                  <button type="button" onClick={()=>setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">{showPassword?<EyeOff size={16}/>:<Eye size={16}/>}</button>
+                </div>
               </div>
-            </div>
+              {error&&<div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3">{error}</div>}
+              <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-2.5">{loading?<><Loader2 size={16} className="animate-spin"/> Entrando...</>:'Entrar'}</button>
+            </form>
+            <p className="text-center text-xs text-slate-400 mt-6">RA Digital © 2025 — Sistema Interno</p>
           </div>
-          <p className="text-center text-slate-500 text-xs mt-4">RA Digital © 2024 — Sistema Interno v1.0</p>
         </div>
       </div>
     </div>
