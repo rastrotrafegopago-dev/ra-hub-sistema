@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { USERS, CLIENTS } from '@/lib/data';
-import { DEMO_USERS, getUser, ROLE_LABELS } from '@/lib/auth';
+import { getUser, ROLE_LABELS } from '@/lib/auth';
 import { User, Shield, Settings, Bell, Link2, Plus, CheckCircle, XCircle } from 'lucide-react';
 
 export default function SettingsPage() {
